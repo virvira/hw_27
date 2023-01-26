@@ -4,9 +4,13 @@ from typing import List
 
 ads_csv_file = 'data/ads.csv'
 categories_csv_file = 'data/categories.csv'
+location_csv_file = 'data/location.csv'
+user_csv_file = 'data/user.csv'
 
 ads_json_file = 'data/ads.json'
 categories_json_file = 'data/categories.json'
+location_json_file = 'data/location.json'
+user_json_file = 'data/user.json'
 
 
 def moveCsvToJson(csv_file, json_file, model) -> None:
@@ -29,5 +33,7 @@ def moveCsvToJson(csv_file, json_file, model) -> None:
         json_f.write(json.dumps(data, indent=4, ensure_ascii=False))
 
 
-moveCsvToJson(categories_csv_file, categories_json_file, 'ads.category')
+# moveCsvToJson(categories_csv_file, categories_json_file, 'ads.category')
 moveCsvToJson(ads_csv_file, ads_json_file, 'ads.advertisement')
+# moveCsvToJson(location_csv_file, location_json_file, 'ads.location')
+# moveCsvToJson(user_csv_file, user_json_file, 'ads.user')
