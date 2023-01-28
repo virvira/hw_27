@@ -9,7 +9,9 @@ class Location(models.Model):
     class Meta:
         verbose_name = "Местоположение"
         verbose_name_plural = "Местоположения"
-        order_with_respect_to = "name"
+
+    def __str__(self):
+        return self.name
 
 
 class User(models.Model):
@@ -25,12 +27,15 @@ class User(models.Model):
     password = models.CharField(max_length=20)
     role = models.CharField(max_length=15, default="member", choices=ROLE)
     age = models.PositiveSmallIntegerField()
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    locations = models.ManyToManyField(Location)
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-        order_with_respect_to = "username"
+        ordering = ["username"]
+
+    def __str__(self):
+        return self.username
 
 
 class Category(models.Model):
@@ -40,6 +45,9 @@ class Category(models.Model):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
         order_with_respect_to = "name"
+
+    def __str__(self):
+        return self.name
 
 
 class Advertisement(models.Model):
@@ -55,4 +63,7 @@ class Advertisement(models.Model):
         verbose_name = "Объявление"
         verbose_name_plural = "Объявления"
         order_with_respect_to = "name"
+
+    def __str__(self):
+        return self.name
 
