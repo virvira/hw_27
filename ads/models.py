@@ -15,30 +15,6 @@ class Location(models.Model):
         return self.name
 
 
-# class User(models.Model):
-#     ROLE = [
-#         ("member", "Базовый пользователь"),
-#         ("moderator", "Модератор"),
-#         ("admin", "Администратор"),
-#     ]
-#
-#     first_name = models.CharField(max_length=20)
-#     last_name = models.CharField(max_length=20)
-#     username = models.CharField(max_length=15)
-#     password = models.CharField(max_length=20)
-#     role = models.CharField(max_length=15, default="member", choices=ROLE)
-#     age = models.PositiveSmallIntegerField()
-#     locations = models.ManyToManyField(Location)
-#
-#     class Meta:
-#         verbose_name = "Пользователь"
-#         verbose_name_plural = "Пользователи"
-#         ordering = ["username"]
-#
-#     def __str__(self):
-#         return self.username
-
-
 class User(AbstractUser):
     MEMBER = "member"
     MODERATOR = "moderator"
