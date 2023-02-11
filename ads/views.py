@@ -2,14 +2,17 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from ads.models import Category, Advertisement, User, Location
+from ads.models import Category, Advertisement, User, Location, Selection
 from django.views.decorators.csrf import csrf_exempt
 
+from ads.permissions import IsSelectionOwner, AdvertisementEditPermission
 from ads.serializers import UserListSerializer, UserDetailSerializer, UserCreateSerializer, UserUpdateSerializer, \
     UserDestroySerializer, LocationSerializer, AdListSerializer, CategorySerializer, AdDetailSerializer, \
-    AdCreateSerializer, AdUpdateSerializer, AdDestroySerializer
+    AdCreateSerializer, AdUpdateSerializer, AdDestroySerializer, SelectionCreateSerializer, SelectionListSerializer, \
+    SelectionDetailSerializer, SelectionUpdateSerializer, SelectionDestroySerializer
 from hw27 import settings
 
 
@@ -68,9 +71,10 @@ class AdvertisementCreateView(CreateAPIView):
 class AdvertisementUpdateView(UpdateAPIView):
     queryset = Advertisement.objects.all()
     serializer_class = AdUpdateSerializer
+    permission_classes = [AdvertisementEditPermission]
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class AdvertisementImageUpdateView(UpdateView):
     model = Advertisement
     fields = ["name", "author", "price", "description", "is_published", "image", "category"]
@@ -93,6 +97,7 @@ class AdvertisementImageUpdateView(UpdateView):
 class AdvertisementDeleteView(DestroyAPIView):
     queryset = Advertisement.objects.all()
     serializer_class = AdDestroySerializer
+    permission_classes = [AdvertisementEditPermission]
 
 
 class UserListView(ListAPIView):
@@ -123,3 +128,31 @@ class UserDeleteView(DestroyAPIView):
 class LocationViewSet(ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+
+class SelectionListView(ListAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionListSerializer
+
+
+class SelectionDetailView(RetrieveAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionDetailSerializer
+
+
+class SelectionCreateView(CreateAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class SelectionUpdateView(UpdateAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionUpdateSerializer
+    permission_classes = [IsSelectionOwner]
+
+
+class SelectionDeleteView(DestroyAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionDestroySerializer
+    permission_classes = [IsSelectionOwner]

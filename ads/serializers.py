@@ -1,13 +1,16 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
-from ads.models import User, Location, Category, Advertisement
+from ads.models import User, Location, Category, Advertisement, Selection
 
 
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = "__all"
+        fields = "__all__"
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -33,7 +36,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = "__all__"
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -62,14 +65,17 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def is_valid(self, raise_exception=False):
-        self._locations = self.initial_data.pop("locations")
+        self._locations = self.initial_data.pop("locations", [])
+        print(self._locations)
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
 
         for location in self._locations:
+            print(location)
             location_obj, _ = Location.objects.get_or_create(name=location)
+            print(location_obj)
             user.locations.add(location_obj)
 
         user.save()
@@ -152,7 +158,6 @@ class AdCreateSerializer(serializers.ModelSerializer):
         exclude = ["image"]
 
 
-
 class AdUpdateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field="name",
@@ -172,4 +177,85 @@ class AdDestroySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Advertisement
+        fields = ["id"]
+
+
+class SelectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        fields = ["id", "name"]
+
+
+class SelectionDetailSerializer(serializers.ModelSerializer):
+    items = AdListSerializer(
+        many=True
+    )
+
+    class Meta:
+        model = Selection
+        fields = "__all__"
+
+
+class SelectionCreateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    items = serializers.SlugRelatedField(
+        required=False,
+        many=True,
+        queryset=Advertisement.objects.all(),
+        slug_field="id"
+    )
+
+    class Meta:
+        model = Selection
+        fields = "__all__"
+
+    def is_valid(self, raise_exception=False):
+        self._items = self.initial_data.pop("items", [])
+        return super().is_valid(raise_exception=raise_exception)
+
+    def create(self, validated_data):
+        selection = Selection.objects.create(**validated_data)
+
+        for item in self._items:
+            item_obj = get_object_or_404(Advertisement, id=item)
+            if item_obj:
+                selection.items.add(item_obj)
+
+        selection.save()
+
+        return selection
+
+
+class SelectionUpdateSerializer(serializers.ModelSerializer):
+    items = serializers.SlugRelatedField(
+        required=False,
+        many=True,
+        queryset=Advertisement.objects.all(),
+        slug_field="id"
+    )
+
+    class Meta:
+        model = Selection
+        fields = ["id", "name", "owner", "items"]
+
+    def is_valid(self, raise_exception=False):
+        self._items = self.initial_data.pop("items", [])
+        return super().is_valid(raise_exception=raise_exception)
+
+    def save(self):
+        selection = super().save()
+
+        for item in self._items:
+            item_obj = get_object_or_404(Advertisement, id=item)
+            if item_obj:
+                selection.items.add(item_obj)
+
+        selection.save()
+        return selection
+
+
+class SelectionDestroySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Selection
         fields = ["id"]
