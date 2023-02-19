@@ -6,6 +6,22 @@ from rest_framework.generics import get_object_or_404
 from ads.models import User, Location, Category, Advertisement, Selection
 
 
+class NotAdIsPublishedFalseValidator:
+    def __call__(self, is_published):
+        if not is_published:
+            raise serializers.ValidationError("Incorrect status")
+
+
+class NotUserEmailInForbiddenList:
+    def __init__(self, domain_list):
+        self.domain_list = domain_list
+
+    def __call__(self, email):
+        for domain in self.domain_list:
+            if domain in email:
+                raise serializers.ValidationError("Incorrect email")
+
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -59,6 +75,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         slug_field="name"
     )
+    email = serializers.EmailField(validators=[NotUserEmailInForbiddenList(["rambler.ru"])])
 
     class Meta:
         model = User
@@ -152,6 +169,7 @@ class AdCreateSerializer(serializers.ModelSerializer):
         slug_field="username",
         queryset=User.objects.all()
     )
+    is_published = serializers.BooleanField(validators=[NotAdIsPublishedFalseValidator()])
 
     class Meta:
         model = Advertisement

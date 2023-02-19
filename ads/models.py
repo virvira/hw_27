@@ -1,5 +1,18 @@
+# import uuid
+from datetime import date
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MinLengthValidator
 from django.db import models
+
+
+def check_birthdate(value: date):
+    if value > date.today() - relativedelta(years=9):
+        raise ValidationError(
+            'The user is too young',
+            params={'value': value},
+        )
 
 
 class Location(models.Model):
@@ -28,6 +41,8 @@ class User(AbstractUser):
     role = models.CharField(max_length=15, default="member", choices=ROLE)
     age = models.PositiveSmallIntegerField(null=True)
     locations = models.ManyToManyField(Location)
+    birthdate = models.DateField(validators=[check_birthdate], null=True)
+    email = models.EmailField(unique=True)
 
     def save(self, *args, **kwargs):
         self.set_password(self.password)
@@ -44,6 +59,11 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
+    slug = models.SlugField(
+        max_length=10,
+        unique=True,
+        validators=[MinLengthValidator(5)]
+    )
 
     class Meta:
         verbose_name = "Категория"
@@ -54,10 +74,10 @@ class Category(models.Model):
 
 
 class Advertisement(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, null=False, validators=[MinLengthValidator(10)])
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    price = models.PositiveSmallIntegerField(null=True, blank=True)
-    description = models.CharField(max_length=500)
+    price = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(0)])
+    description = models.CharField(max_length=500, null=True)
     is_published = models.BooleanField(default=False)
     image = models.ImageField(upload_to="images/")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
