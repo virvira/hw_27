@@ -9,7 +9,6 @@ def test_ad_create(client, user, category):
         "name": "Сибирская котята, 3 месяца",
         "price": 2500,
         "category": category.name,
-        # category.pk
         "author": user.username,
         "description": "Продаю сибирских котят, возраст 3 месяца",
         "is_published": True

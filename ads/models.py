@@ -42,11 +42,11 @@ class User(AbstractUser):
     age = models.PositiveSmallIntegerField(null=True)
     locations = models.ManyToManyField(Location)
     birthdate = models.DateField(validators=[check_birthdate], null=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True)
 
-    def save(self, *args, **kwargs):
-        self.set_password(self.password)
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.set_password(self.password)
+    #     return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Пользователь"
@@ -60,7 +60,7 @@ class User(AbstractUser):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(
-        max_length=10,
+        max_length=50,
         unique=True,
         validators=[MinLengthValidator(5)]
     )

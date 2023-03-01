@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
+from django.contrib.auth.hashers import make_password
 
 from ads.models import User, Location, Category, Advertisement, Selection
 
@@ -87,6 +88,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):
+        validated_data["password"] = make_password(validated_data["password"])
         user = User.objects.create(**validated_data)
 
         for location in self._locations:

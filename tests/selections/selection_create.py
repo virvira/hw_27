@@ -34,7 +34,7 @@ def test_selection_create(client, user, access_token):
         '/selection/create/',
         data,
         content_type='application/json',
-        HTTP_AUTHORIZATION=f'Bearer + {access_token}'
+        HTTP_AUTHORIZATION=f'Bearer {access_token}'
     )
     assert response.status_code == 201
     assert response.data == expected_response

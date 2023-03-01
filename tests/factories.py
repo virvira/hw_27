@@ -25,4 +25,13 @@ class AdFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("name")
     category = factory.SubFactory(CategoryFactory)
     author = factory.SubFactory(UserFactory)
-    price = 800
+    price = 300
+
+
+class SelectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Selection
+
+    name = factory.Faker("name")
+    owner = factory.SubFactory(UserFactory)
+    items = []

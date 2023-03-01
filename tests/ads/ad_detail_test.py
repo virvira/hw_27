@@ -8,13 +8,6 @@ from tests.factories import AdFactory
 def test_ad_detail(client):
     ad = AdFactory.create()
 
-    expected_response = {
-        "count": 3,
-        "next": None,
-        "previous": None,
-        "results": AdDetailSerializer(ad).data
-    }
-
-    response = client.get(f'/ad/{ad.pk}')
+    response = client.get(f'/ad/{ad.pk}/')
     assert response.status_code == 200
-    assert response.data == expected_response
+    assert response.data == AdDetailSerializer(ad).data
